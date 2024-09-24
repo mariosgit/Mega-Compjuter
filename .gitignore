@@ -1,0 +1,57 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+.pio/
+.vscode/
+.kiri/
+
+.DS_Store
+
+# Eagle
+PCB-Eagle/.DS_Store
+PCB-Eagle/*.b#*
+PCB-Eagle/*.s#*
+PCB-Eagle/*.l#*
+PCB-Eagle/eagle.epf
+
+# KiCad
+PCB-KiCad/*/*.zip
+PCB-KiCad/*/*.lck
+PCB-KiCad/*.zip
+PCB-KiCad/GP1294-Teens4.kicad_prl
+PCB-KiCad/fp-info-cache
+
+GP1294-software/attinclickEncoder
+GP1294-software/TinyWireS/
+
+.env
