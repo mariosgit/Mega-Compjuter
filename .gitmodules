@@ -1,0 +1,3 @@
+[submodule "lib/mbLog"]
+	path = lib/mbLog
+	url = https://github.com/mariosgit/mbLog.git

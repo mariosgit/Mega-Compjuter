@@ -41,6 +41,7 @@
 PCB-KiCAD/*/*.zip
 PCB-KiCAD/*/*.lck
 PCB-KiCAD/*.zip
+PCB-KiCAD/*.lck
 PCB-KiCAD/GP1294-Teens4.kicad_prl
 PCB-KiCAD/fp-info-cache
 
