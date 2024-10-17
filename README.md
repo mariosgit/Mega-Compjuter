@@ -29,6 +29,53 @@ From Z8 datasheet...
 * When DS goes low and writing, read the data, do something e.g. save to ram.
 * Turn of Data output ??? When ??? Read data to DS 1 hold time is 0, so turn it off after DS goes high.
 
+### Reset
+
+8833 RESET-Eingang (vgl . Kapitel 1) .
+Hat er nach eingeschwungene r
+Spannungs- und Taktversorgun g
+für mindestens **18** Taktperiode n
+Nullpegel, erzeugt er im Innere n
+des Einchip-Mikrorechners einige
+festgelegte Zustände . 
+
+in kurzes Pro-
+gramm ab %000C im Test-ROM
+konfiguriert Port 0, Port 1 und
+P34 für den Anschluß des exter-
+nen Speichers und springt au f
+Adresse %0812
+
+Der UB 8830 D
+(UB 8831 D) besitzt auch be i
+„normalem” Rücksetzen die ge-
+nannten Interruptvektoren un d
+springt auf die Adresse %0812,
+wenn dort kein RAM bestückt is t
+und P32 keine Verbindung zu P35
+hat. 
+
+Der Einchip-
+Mikrorechner besitzt ein Test-
+programm im internen ROM,
+das sich für unsere Zwecke gut
+ausnutzen läßt. Damit es vom
+Prozessor ausgeführt wird, muß
+eine Drahtbrücke die Port
+Anschlüsse P32 und P35 ver-
+binden. .......  0-Impulse
+mit einer Breite von 11 μs
+erscheinen. Jede Abweichung
+von dieser Regel deutet auf
+eine Fehlverbindung zwischen
+benachbarten Leiterzügen. Bei
+Inbetriebnahme mit Kopfhörer
+o. ä. müssen diese 16 An-
+schlüsse mit gleichlauten 5,45-
+kHz-Tönen 
+
+Der laeuft mit 8mhz, auf dem Arduino mit 70khz, Faktor 114, 1254us.
+
 ### First something ?
 
 after applying reset for at least 3 clocks it started doing things
