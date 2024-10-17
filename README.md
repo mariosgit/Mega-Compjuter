@@ -29,6 +29,13 @@ From Z8 datasheet...
 * When DS goes low and writing, read the data, do something e.g. save to ram.
 * Turn of Data output ??? When ??? Read data to DS 1 hold time is 0, so turn it off after DS goes high.
 
+### First something ?
+
+after applying reset for at least 3 clocks it started doing things
+* AS, DS, RW go up and down
+* But no data on the bus !? -> could the thing be running it's internal ROM first ? Then there should be a addr=0x0800 (ext reset vector) comming up some time.. When it reads 0 it would start @0 again ???
+* Oszi say it starts reading and writing to 0x1012 after about 173 initial clocks. it writes 0xff ?
+
 # PCB
 
 | ATMega Pin Port | UB8833 | Comments |
