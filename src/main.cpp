@@ -6,6 +6,8 @@
 #include <mbLog.h>
 #include <elapsedMillis.h>
 
+#include "rom.h"
+
 // | D53 | CS |
 // | D49 | DC |
 // | D51(mosi) | DI |
@@ -74,31 +76,29 @@ uint16_t addr = 0;
 void cpureset()
 {
     // Reset should be kept low for 3 full clock cycles ???
-    digitalWrite(pinRST, LOW);    delay(1);
+    digitalWrite(pinRST, LOW);
+    delay(1);
+
+    DATA_DIR = DATA_IN;
+    
+    // must clock 18 cycles for EMR to reset internals
+    for(int i = 0; i < 20; i++)
+    {
+        digitalWrite(pinXTAL, LOW);
+        digitalWrite(pinXTAL, HIGH);
+    }
+    digitalWrite(pinRST, HIGH);
+
+    oldas = digitalRead(pinAS);
+    oldds = digitalRead(pinDS);
+
     for(int i = 0; i < 8; i++)
     {
         digitalWrite(pinXTAL, LOW);
         digitalWrite(pinXTAL, HIGH);
     }
-    digitalWrite(pinRST, HIGH);    delay(1);
-
-    oldas = digitalRead(pinAS);
-    oldds = digitalRead(pinDS);
 
     clkcount = 0;
-}
-
-// just run the clock...
-int cpucycle_dummy()
-{
-    int i = 0;
-    for(i = 0; i < 8; i++)
-    {
-        digitalWrite(pinXTAL, LOW);
-        digitalWrite(pinXTAL, HIGH);
-        clkcount++;
-    }
-    return i;
 }
 
 int cpucycle()
@@ -106,8 +106,8 @@ int cpucycle()
     int i = 0;
     for(i = 0; i < 11; i++)
     {
-        digitalWrite(pinXTAL, LOW);    delay(1);
-        digitalWrite(pinXTAL, HIGH);    delay(1);
+        digitalWrite(pinXTAL, LOW);
+        digitalWrite(pinXTAL, HIGH);
         clkcount++;
 
         as = digitalRead(pinAS);
@@ -123,8 +123,8 @@ int cpucycle()
     oldds = 1;
     for(i = 0; i < 11; i++)
     {
-        digitalWrite(pinXTAL, LOW);    delay(1);
-        digitalWrite(pinXTAL, HIGH);    delay(1);
+        digitalWrite(pinXTAL, LOW);
+        digitalWrite(pinXTAL, HIGH);
         clkcount++;
 
         ds = digitalRead(pinDS);
@@ -160,6 +160,70 @@ int cpucycle()
     return i;
 }
 
+// just run the clock...
+uint16_t cpucycle_dummy(uint32_t ascount = 1)
+{
+    uint16_t result = 0;
+
+    oldas = digitalRead(pinAS);
+    oldds = digitalRead(pinDS);
+    uint32_t i = 0;
+    for(i = 0; i < ascount * 8; i++)
+    {
+        digitalWrite(pinXTAL, LOW);
+        digitalWrite(pinXTAL, HIGH);
+        clkcount++;
+
+        // count rising edge
+        as = digitalRead(pinAS);
+        if(as == 0)
+        {
+            clkcount = 0;
+        }
+        if(oldas == 0 && as == 1)
+        {
+            addr = ((uint16_t)ADDR_H << 8) | ADDR_L;
+            rw = digitalRead(pinRW);
+            if(addr > 0x07ff)
+            {
+                LOG <<LOG.endl <<result <<(rw?" R[":" W[") <<LOG.hex <<addr <<LOG.dec <<"] ";
+            }
+
+            result++;
+            if (result >= ascount) break;
+        }
+        oldas = as;
+
+        // ds may or may not go low        
+        ds = digitalRead(pinDS);
+        if(ds == 0)
+        {
+            if(rw == 1 && addr > 0x7ff)
+            {
+                // 0x8d, 0x08, 0xff erster befehl is jp 08ff
+                DATA_DIR = DIR_OUT;
+                uint8_t data = (addr>(0x800+2048)) ? 0xff : _1988_01__2k__address_0800[addr-0x800];
+                DATA_OUT = data;
+                LOG <<"_[" <<LOG.hex <<data <<"]" <<LOG.dec <<clkcount;
+            }
+        }
+        else //ds == 1
+        {
+            // if(oldds == 0)
+            // {
+            //     // keep data out on one more clock
+            // }
+            // else
+            {
+                DATA_DIR = DIR_IN;
+                LOG <<"~";
+            }
+        }
+        oldds = ds;
+    }
+    return result;
+}
+
 void loop()
 {
     if(emDisplay > 100)
@@ -173,10 +237,8 @@ void loop()
         // start 8833 and watch
         cpureset();
 
-        for(int i = 0; i < 10000; i++)
-        {
-            int clks = cpucycle_dummy();
-        }
+        int asses = cpucycle_dummy(40);
+        LOG <<LOG.endl <<"as#:" <<asses <<LOG.endl;
 
         // for(int i = 0; i < 10000; i++)
         // {
@@ -204,16 +266,16 @@ void loop()
         //     int clks = cpucycle();
         // }
 
-        char sbuf[20];
-        u8g2.clearDisplay();
-        u8g2.setCursor(7,7);
-        u8g2.setDrawColor(1);
-        u8g2.drawStrX2(0,16,"JU+TE");
+        // char sbuf[20];
+        // u8g2.clearDisplay();
+        // u8g2.setCursor(7,7);
+        // u8g2.setDrawColor(1);
+        // u8g2.drawStrX2(0,16,"JU+TE");
 
-        snprintf(sbuf, 20, "A:%x D:%x", addr, 0);
-        u8g2.drawStr(0,30, sbuf);
-        // u8g2.drawLine(0,0, 127, 63);
-        u8g2.updateDisplay();
+        // snprintf(sbuf, 20, "A:%x D:%x", addr, 0);
+        // u8g2.drawStr(0,30, sbuf);
+        // // u8g2.drawLine(0,0, 127, 63);
+        // u8g2.updateDisplay();
 
     }
 }
