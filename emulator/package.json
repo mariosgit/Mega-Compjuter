@@ -1,0 +1,32 @@
+{
+  "name": "jute-tiny-emulator",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Browser emulator of the 1987 JU+TE Tiny computer (UB8830, 2K OS, TINY-MP-BASIC)",
+  "scripts": {
+    "roms": "node scripts/gen-roms.mjs",
+    "predev": "npm run roms",
+    "dev": "vite",
+    "prebuild": "npm run roms",
+    "build": "tsc -b && vite build",
+    "build:artifact": "npm run roms && tsc -b && vite build --mode artifact && node scripts/build-artifact.mjs",
+    "preview": "vite preview",
+    "pretest": "npm run roms",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.6.0",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-singlefile": "^2.2.0",
+    "vitest": "^3.2.0"
+  }
+}

@@ -1,0 +1,5 @@
+node_modules/
+dist/
+dist-artifact/
+# generated from ../src/rom.cpp and roms/ub8830.bin by scripts/gen-roms.mjs
+src/emu/roms/
