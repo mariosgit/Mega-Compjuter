@@ -7,6 +7,8 @@ import { viteSingleFile } from 'vite-plugin-singlefile'
 // (scripts/build-artifact.mjs then turns it into the hosted artifact page).
 export default defineConfig(({ mode }) => ({
   base: './',
+  // public/ref holds the 27 MB of original PDFs: deployed with the site, left out of the single-file artifact
+  publicDir: mode === 'artifact' ? false : 'public',
   plugins: [react(), ...(mode === 'artifact' ? [viteSingleFile()] : [])],
   build: {
     outDir: mode === 'artifact' ? 'dist-artifact' : 'dist',

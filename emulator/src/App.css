@@ -418,6 +418,77 @@ kbd {
 .reading span {
   color: var(--muted);
 }
+.originals .hint {
+  margin: -4px 0 12px;
+}
+.doc-link {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: 600 0.95rem/1.3 var(--body);
+  color: var(--accent);
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.doc-link:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+.reading .doc-src {
+  font: 0.78rem var(--mono);
+}
+
+/* PDF popup */
+.docviewer {
+  width: min(1100px, calc(100vw - 32px));
+  height: calc(100vh - 48px);
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.docviewer::backdrop {
+  background: rgba(10, 14, 11, 0.6);
+}
+.docviewer-frame {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.docviewer-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.docviewer-bar h2 {
+  font: 700 1.15rem/1.1 var(--display);
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+.docviewer-bar p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.docviewer-bar a.btn {
+  text-decoration: none;
+}
+.docviewer-pdf {
+  flex: 1;
+  width: 100%;
+  border: 0;
+  background: #525659;
+}
 
 /* ---- panels -------------------------------------------------------------------- */
 .panel {

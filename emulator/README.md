@@ -36,6 +36,8 @@ npm run build:artifact # single self-contained HTML in dist-artifact/
 - Examples from the articles: Zählprogramm, Mittelwert, Kreisberechnung, Mondlandung (J+T 12/1987) and
   Turm von Hanoi (J+T 9/1989, 2 KByte, graphics via `PROC SETEW`, melody via timer T1).
 - *Cassette*: every SAVE is recorded as a tape (kept in the browser). To load, press `SHIFT O`, then Play.
+- *The originals*: the J+T articles and booklets from `public/ref/` open in a PDF popup (on GitHub Pages and
+  `npm run dev`). The single-file artifact leaves the 27 MB out and links to hc-ddr.hucki.net instead.
 
 ## Code map
 
@@ -69,7 +71,7 @@ npm run build:artifact # single self-contained HTML in dist-artifact/
 ## Credits
 
 - Hardware and 2K system: Dr. Helmut Hoyer, *JU+TE Computer selbst gebaut*, Jugend+Technik 1987/88
-  (`../ref/jutecomp1.pdf`).
+  (`public/ref/jutecomp1.pdf`).
 - TINY-MP-BASIC mask ROM: VEB Mikroelektronik Erfurt. Image from JTCEMU (Jens Müller), see `roms/SOURCE.md`.
   The ROM contents are not under an open-source license.
 - Z8 behaviour and timing: Zilog Z8 datasheet, cross-checked against MAME's z8 core (BSD-3-Clause).

@@ -7,10 +7,13 @@ import { ProgramPanel } from './components/ProgramPanel'
 import { TapePanel } from './components/TapePanel'
 import { MachinePanel } from './components/MachinePanel'
 import { DebugPanel } from './components/DebugPanel'
+import { DocViewer } from './components/DocViewer'
 import { useEmuRefresh } from './hooks'
+import { DOCS, DOCS_LOCAL, docUrl, type Doc } from './docs'
 
 export default function App() {
   const [emu] = useState(() => new Emulator(2048))
+  const [doc, setDoc] = useState<Doc | null>(null)
 
   // emulation loop, paced by the display
   useEffect(() => {
@@ -30,6 +33,7 @@ export default function App() {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null
       if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) return
+      if (document.querySelector('dialog[open]')) return // reading a document
       if (e.ctrlKey || e.metaKey || e.altKey) return
       const k = emu.keys
       let taps = null
@@ -96,8 +100,10 @@ export default function App() {
         </aside>
       </main>
 
-      <FurtherReading />
       <DebugPanel emu={emu} />
+      <Originals onOpen={setDoc} />
+      <FurtherReading />
+      <DocViewer doc={doc} onClose={() => setDoc(null)} />
 
       <footer className="credits">
         <p>
@@ -121,6 +127,37 @@ const READING: { title: string; href: string; what: string }[] = [
   { title: 'A Z80 board with very few parts', href: 'https://hackaday.com/2020/07/17/a-z80-board-with-very-few-parts/', what: 'Hackaday: a real CPU driven by an Arduino' },
   { title: 'Mega-Compjuter', href: 'https://github.com/mariosgit/Mega-Compjuter', what: 'This project: an Arduino Mega shield for the UB 8830/8833, and this emulator' },
 ]
+
+function Originals({ onOpen }: { onOpen: (d: Doc) => void }) {
+  return (
+    <section className="reading originals" aria-labelledby="orig-h">
+      <h2 id="orig-h">The originals</h2>
+      <p className="hint">
+        The articles and booklets the Tiny was built from, as PDF (in German).
+        {DOCS_LOCAL ? '' : ' They open on hc-ddr.hucki.net.'}
+      </p>
+      <ul>
+        {DOCS.map((d) => (
+          <li key={d.file}>
+            {DOCS_LOCAL ? (
+              <button type="button" className="doc-link" onClick={() => onOpen(d)}>
+                {d.title}
+              </button>
+            ) : (
+              <a href={docUrl(d)} target="_blank" rel="noopener noreferrer">
+                {d.title}
+              </a>
+            )}
+            <span className="doc-src">
+              {d.source} · {d.pages} pages
+            </span>
+            <span>{d.summary}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
 
 function FurtherReading() {
   return (
