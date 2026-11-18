@@ -52,46 +52,57 @@ function replaceOutsideQuotes(s: string, re: RegExp, by: string): string {
     .join('"')
 }
 
-/**
- * Convert a listing like
- *   10 LET A=5
- *   20 IF A>4 THEN PRINT "GROSS"
- * into keystrokes for the editor.
- */
-export function listingToKeys(listing: string): { strokes: Stroke[]; errors: string[] } {
-  const strokes: Stroke[] = []
-  const errors: string[] = []
-  const typeText = (t: string) => {
-    for (const ch of t) strokes.push(CHAR_ALIASES[ch] ?? ch)
-  }
+/** Remove blanks outside of string literals (the editor stores what is typed; blanks there are noise). */
+function stripBlanks(s: string): string {
+  return s
+    .split('"')
+    .map((part, i) => (i % 2 === 0 ? part.replace(/\s+/g, '') : part))
+    .join('"')
+}
 
-  const typeStatement = (stmt: string, lineNo: string) => {
+interface Statement {
+  /** keyword key, e.g. 'P' */
+  key: string
+  text: string
+  /** IF: the next statement is its THEN part */
+  isIf: boolean
+}
+interface Line {
+  num: number
+  stmts: Statement[]
+}
+
+/** Parse a text listing into lines of keyword statements. */
+export function parseListing(listing: string): { lines: Line[]; errors: string[] } {
+  const lines: Line[] = []
+  const errors: string[] = []
+
+  const parseStatement = (stmt: string, lineNo: number, out: Statement[]) => {
     const upper = stmt.toUpperCase()
     const kw = KEYWORDS.find(([w]) => upper.startsWith(w))
     if (!kw) {
       errors.push(`${lineNo}: no keyword at "${stmt}"`)
-      typeText(stmt)
       return
     }
     const [word, key] = kw
-    strokes.push(key)
     let rest = stmt.slice(word.length).trim()
-    if (word === 'IF') {
-      // IF cond THEN stmt  ->  F cond , stmt   (THEN is the ',' key)
-      const m = /^(.*?)\s*\bTHEN\b\s*(.*)$/i.exec(replaceOutsideQuotes(rest, /\bTHEN\b/gi, 'THEN'))
-      if (m) {
-        typeText(m[1].trim())
-        strokes.push(',')
-        if (m[2].trim()) typeStatement(m[2].trim(), lineNo)
-        return
-      }
-    }
-    if (word === 'TRAP') rest = replaceOutsideQuotes(rest, /\s*\bTO\b\s*/gi, ',')
     if (word === 'REM') {
-      typeText(stmt.slice(word.length).replace(/^ /, ''))
+      out.push({ key, text: stmt.slice(word.length).replace(/^ /, ''), isIf: false })
       return
     }
-    typeText(rest)
+    if (word === 'IF') {
+      // IF cond THEN stmt: the THEN part is stored as the next statement
+      const m = /^(.*?)\s*\bTHEN\b\s*(.*)$/i.exec(replaceOutsideQuotes(rest, /\bTHEN\b/gi, 'THEN'))
+      if (m) {
+        out.push({ key, text: stripBlanks(m[1]), isIf: true })
+        if (m[2].trim()) parseStatement(m[2].trim(), lineNo, out)
+        else errors.push(`${lineNo}: nothing after THEN`)
+        return
+      }
+      errors.push(`${lineNo}: IF without THEN`)
+    }
+    if (word === 'TRAP') rest = replaceOutsideQuotes(rest, /\s*\bTO\b\s*/gi, ',')
+    out.push({ key, text: stripBlanks(rest), isIf: false })
   }
 
   for (const raw of listing.split(/\r?\n/)) {
@@ -102,17 +113,58 @@ export function listingToKeys(listing: string): { strokes: Stroke[]; errors: str
       errors.push(`missing line number: "${line}"`)
       continue
     }
-    const [, num, body] = m
-    if (+num < 1 || +num > 32767) errors.push(`${num}: line number out of range`)
-    typeText(num)
-    strokes.push('\n')
-    splitStatements(body).forEach((stmt, i) => {
-      if (i > 0) strokes.push(';')
-      typeStatement(stmt, num)
+    const num = +m[1]
+    if (num < 1 || num > 32767) errors.push(`${num}: line number out of range`)
+    const stmts: Statement[] = []
+    for (const stmt of splitStatements(m[2])) parseStatement(stmt, num, stmts)
+    lines.push({ num, stmts })
+  }
+  return { lines, errors }
+}
+
+const charsOf = (t: string) => Array.from(t, (ch) => CHAR_ALIASES[ch] ?? ch)
+
+/**
+ * Convert a listing like
+ *   10 LET A=5
+ *   20 IF A>4 THEN PRINT "GROSS"
+ * into keystrokes for the editor: number, ENTER, keyword key + text per
+ * statement (';' between statements, ',' = THEN after IF), ENTER.
+ */
+export function listingToKeys(listing: string): { strokes: Stroke[]; errors: string[] } {
+  const { lines, errors } = parseListing(listing)
+  const strokes: Stroke[] = []
+  for (const line of lines) {
+    strokes.push(...String(line.num), '\n')
+    line.stmts.forEach((st, i) => {
+      if (i > 0) strokes.push(line.stmts[i - 1].isIf ? ',' : ';')
+      strokes.push(st.key, ...charsOf(st.text))
     })
     strokes.push('\n')
   }
   return { strokes, errors }
+}
+
+/**
+ * Convert a listing straight into the program format in RAM (what LOAD from tape
+ * produces): lines sorted by number, terminated by 00h.
+ */
+export function listingToBytes(listing: string): { bytes: Uint8Array; errors: string[] } {
+  const { lines, errors } = parseListing(listing)
+  const byNum = new Map<number, Line>()
+  for (const l of lines) byNum.set(l.num, l) // a later line replaces an earlier one, like in the editor
+  const out: number[] = []
+  for (const l of [...byNum.values()].sort((a, b) => a.num - b.num)) {
+    if (!l.stmts.length) continue
+    out.push(0x80 | (l.num >> 8), l.num & 0xff)
+    l.stmts.forEach((st, i) => {
+      if (i > 0) out.push(0x3b) // ';'
+      for (const ch of [st.key, ...charsOf(st.text)]) out.push(ch.charCodeAt(0) & 0xff)
+    })
+    out.push(0x0d)
+  }
+  out.push(0x00)
+  return { bytes: Uint8Array.from(out), errors }
 }
 
 /** Read the BASIC program from memory and return a listing (null if none). */

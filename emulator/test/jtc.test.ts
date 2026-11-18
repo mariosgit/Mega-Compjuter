@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest'
 import { JuTe } from '../src/emu/jtc'
 import { KeyMapper, KeyPlayer } from '../src/emu/keyboard'
-import { listingToKeys, programToText } from '../src/emu/basic'
+import { listingToBytes, listingToKeys, programToText } from '../src/emu/basic'
+import { Emulator } from '../src/emu/runner'
 import { TapeDeck, type Tape } from '../src/emu/tape'
 import { EXAMPLES } from '../src/examples'
 
@@ -84,5 +85,33 @@ describe('JU+TE machine', () => {
     deck.play(tape!)
     run(10)
     expect(Array.from({ length: 12 }, (_, i) => m.peek(0xe000 + i))).toEqual(before)
+  })
+
+  test('Turm von Hanoi: loads into RAM (switching to 8 KByte), runs, moves a stone', () => {
+    const emu = new Emulator(2048)
+    emu.machine.runSeconds(1)
+    const ex = EXAMPLES.find((e) => e.name === 'Turm von Hanoi')!
+    const r = emu.loadListing(ex.listing)
+    expect(r.errors).toEqual([])
+    expect(r.switchedRam).toBe(true)
+    expect(emu.machine.ramSize).toBe(8192)
+    const norm = (s: string | null) => (s ?? '').replace(/\s+/g, '')
+    expect(norm(programToText((a) => emu.machine.peek(a)))).toBe(norm(ex.listing))
+    expect(listingToBytes(ex.listing).bytes.length).toBe(r.bytes)
+
+    const kp = new KeyPlayer(emu.machine)
+    kp.push(...emu.keys.tapsForCode(0x2b)) // RUN
+    kp.run(6)
+    // smallest stone (3 px wide, at x 6-8) sits on top of the left tower, right stand empty
+    const rows = () => emu.machine.screenAscii().split('\n')
+    expect(rows()[43].slice(0, 12)).toBe('......###...')
+    expect(rows()[59].slice(36, 44)).toBe('........')
+    // the BASIC program polls the key with GTC, so give it time between the two inputs
+    kp.push(...emu.keys.tapsForChar('1'))
+    kp.run(1)
+    kp.push(...emu.keys.tapsForChar('3'))
+    kp.run(3)
+    expect(rows()[43].slice(0, 12)).toBe('............')
+    expect(rows()[59].slice(36, 44)).toBe('..###...')
   })
 })

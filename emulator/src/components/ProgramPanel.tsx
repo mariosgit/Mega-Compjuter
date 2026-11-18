@@ -20,6 +20,14 @@ export function ProgramPanel({ emu }: { emu: Emulator }) {
     setMessage(errors.length ? `Typed with warnings: ${errors.join('; ')}` : null)
   }
 
+  const load = () => {
+    const r = emu.loadListing(text)
+    const parts = [`Loaded ${r.bytes} bytes at E000h. Press + (RUN).`]
+    if (r.switchedRam) parts.push('RAM switched to 8 KByte, the program did not fit.')
+    if (r.errors.length) parts.push(`Warnings: ${r.errors.join('; ')}`)
+    setMessage(parts.join(' '))
+  }
+
   const readBack = () => {
     const listing = programToText((a) => emu.machine.peek(a))
     if (listing) {
@@ -32,12 +40,22 @@ export function ProgramPanel({ emu }: { emu: Emulator }) {
     <section className="panel" aria-labelledby="prog-h">
       <h2 id="prog-h">Programs</h2>
       <p className="hint">
-        The listing is typed key by key, the way you would on the real keyboard: line number, ENTER, one key per
-        keyword, then the rest. Then press <kbd>+</kbd> (RUN).
+        <i>Type</i> enters the listing key by key, as on the real keyboard (line number, ENTER, one key per
+        keyword). <i>Load</i> puts it straight into RAM, as from tape. Then press <kbd>+</kbd> (RUN).
       </p>
-      <div className="chips" role="list" aria-label="Examples from Jugend+Technik 12/1987">
+      <div className="chips" role="list" aria-label="Examples from Jugend+Technik 1987–1989">
         {EXAMPLES.map((ex) => (
-          <button type="button" key={ex.name} role="listitem" className="chip" title={ex.note} onClick={() => setText(ex.listing)}>
+          <button
+            type="button"
+            key={ex.name}
+            role="listitem"
+            className="chip"
+            title={ex.note}
+            onClick={() => {
+              setText(ex.listing)
+              setMessage(ex.note)
+            }}
+          >
             {ex.name}
           </button>
         ))}
@@ -60,9 +78,12 @@ export function ProgramPanel({ emu }: { emu: Emulator }) {
           </button>
         ) : (
           <button type="button" className="btn btn-primary" onClick={type}>
-            Type into the Tiny
+            Type
           </button>
         )}
+        <button type="button" className="btn" onClick={load} disabled={typing}>
+          Load into RAM
+        </button>
         <button type="button" className="btn" onClick={readBack} disabled={typing}>
           Read from RAM
         </button>

@@ -31,7 +31,10 @@ npm run build:artifact # single self-contained HTML in dist-artifact/
   `SHIFT P` = SAVE, `SHIFT O` = LOAD. A letter key shows that variable.
 - Line number + `ENTER` gives an **A** cursor: one key per keyword (P = PRINT, G = GOTO, F = IF, `,` = THEN, …),
   then the rest of the statement, `ENTER`.
-- The PC keyboard types too. *Programs* types a listing in key by key (at 10× speed).
+- The PC keyboard types too. *Programs* types a listing in key by key (at 10× speed), or *Load into RAM*
+  puts it there directly, as LOAD from tape would. Programs that don't fit switch the RAM to 8 KByte.
+- Examples from the articles: Zählprogramm, Mittelwert, Kreisberechnung, Mondlandung (J+T 12/1987) and
+  Turm von Hanoi (J+T 9/1989, 2 KByte, graphics via `PROC SETEW`, melody via timer T1).
 - *Cassette*: every SAVE is recorded as a tape (kept in the browser). To load, press `SHIFT O`, then Play.
 
 ## Code map

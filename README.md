@@ -6,6 +6,10 @@
 
 Just an Idee. Made a basic PCB. Started experimenting...
 
+**Emulator:** [`emulator/`](emulator/) runs the original 1987 Tiny (UB8830 + the 2K OS from `src/rom.cpp`) in the
+browser, including a bus trace for comparison with the shield. Try it at
+**<https://mariosgit.github.io/Mega-Compjuter/>** or locally with `cd emulator && npm install && npm run dev`.
+
 # Wath's this ?
 
 Arduino MEGA Shield with a UB8830 on top. The UB8833 is a Ostblock version of a Zilog Z8682 with a view quirks.
@@ -102,12 +106,11 @@ as#:40
 
 # Refs
 
-https://github.com/boert/JU-TE-Computer
-
-https://hc-ddr.hucki.net/wiki/doku.php/tiny/dokumentation 
-
-https://www.robotrontechnik.de/html/forum/thwb/showtopic.php?threadid=16374
-
-https://hackaday.com/2020/07/17/a-z80-board-with-very-few-parts/
-
-http://bitsavers.informatik.uni-stuttgart.de/components/zilog/z8/Z8681_Data_Sheet_Mar83.pdf
+| What | Where |
+|---|---|
+| PCB and Firmware | https://github.com/boert/JU-TE-Computer |
+| Original Articles and lots of stuff | https://hc-ddr.hucki.net/wiki/doku.php/tiny/dokumentation |
+| Forum | https://www.robotrontechnik.de/html/forum/thwb/showtopic.php?threadid=16374 |
+| Z80 on Arduino | https://hackaday.com/2020/07/17/a-z80-board-with-very-few-parts/ |
+| Z8681 (=UB88xx) data sheet | http://bitsavers.informatik.uni-stuttgart.de/components/zilog/z8/Z8681_Data_Sheet_Mar83.pdf |
+| Infos and software for the Tiny | https://www.tiny-computer.de/ |
