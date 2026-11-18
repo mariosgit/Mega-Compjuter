@@ -67,6 +67,8 @@ export function DebugPanel({ emu }: { emu: Emulator }) {
       <summary>
         <h2>Debugger &amp; bus trace</h2>
       </summary>
+      <div className="debug-body">
+      <div className="debug-cpu">
       <div className="row">
         <button type="button" className="btn" onClick={() => { emu.paused = !emu.paused; emu.notify() }} aria-pressed={emu.paused}>
           {emu.paused ? 'Resume' : 'Pause'}
@@ -102,7 +104,9 @@ export function DebugPanel({ emu }: { emu: Emulator }) {
           </span>
         ))}
       </pre>
+      </div>
 
+      <div className="debug-bus">
       <h3>External bus after reset</h3>
       <p className="hint">
         Each line is one bus cycle: /AS latches the address, /DS moves the data (R/W). The internal ROM checks
@@ -116,6 +120,8 @@ export function DebugPanel({ emu }: { emu: Emulator }) {
         <button type="button" className="btn btn-small" onClick={copy}>
           {copied ? 'Copied' : 'Copy trace'}
         </button>
+      </div>
+      </div>
       </div>
     </details>
   )

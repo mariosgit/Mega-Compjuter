@@ -372,6 +372,53 @@ kbd {
   white-space: nowrap;
 }
 
+.reading {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.reading h2 {
+  font: 700 1.1rem/1 var(--display);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+}
+.reading ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 28px;
+}
+@media (max-width: 900px) {
+  .reading ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .reading ul {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.reading li {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 0.88rem;
+}
+.reading a {
+  color: var(--accent);
+  font-weight: 600;
+  text-underline-offset: 2px;
+}
+.reading a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+.reading span {
+  color: var(--muted);
+}
+
 /* ---- panels -------------------------------------------------------------------- */
 .panel {
   padding-block: 16px;
@@ -630,8 +677,30 @@ select {
 .debug[open] summary h2::before {
   content: '▾ ';
 }
-.debug[open] {
-  gap: 12px;
+.debug {
+  border-top: 1px solid var(--line);
+  border-bottom: 0;
+}
+.debug-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 16px 28px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .debug-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.debug-cpu,
+.debug-bus {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.debug-bus h3 {
+  margin-top: 0;
 }
 .workregs {
   display: grid;
@@ -667,7 +736,7 @@ select {
   font-weight: 500;
 }
 .trace {
-  max-height: 320px;
+  max-height: 420px;
   overflow: auto;
 }
 .warn {

@@ -93,9 +93,11 @@ export default function App() {
           <ProgramPanel emu={emu} />
           <TapePanel emu={emu} />
           <MachinePanel emu={emu} />
-          <DebugPanel emu={emu} />
         </aside>
       </main>
+
+      <FurtherReading />
+      <DebugPanel emu={emu} />
 
       <footer className="credits">
         <p>
@@ -105,6 +107,36 @@ export default function App() {
         </p>
       </footer>
     </div>
+  )
+}
+
+const READING: { title: string; href: string; what: string }[] = [
+  { title: 'Original articles and documentation', href: 'https://hc-ddr.hucki.net/wiki/doku.php/tiny/dokumentation', what: 'J+T build series 1987–1991, ES 2.3 / ES 4.0, ABC Einchip-Mikrorechner (hc-ddr.hucki.net)' },
+  { title: 'tiny-computer.de', href: 'https://www.tiny-computer.de/', what: 'Information and software for the Tiny' },
+  { title: 'JU-TE-Computer on GitHub', href: 'https://github.com/boert/JU-TE-Computer', what: 'Schematics and firmware of the 2K and 6K Tiny' },
+  { title: 'JTCEMU', href: 'https://hc-ddr.hucki.net/wiki/doku.php/tiny/jtcemu', what: 'The Java emulator by Jens Müller, source of the BASIC ROM image' },
+  { title: 'Z8681 data sheet', href: 'http://bitsavers.informatik.uni-stuttgart.de/components/zilog/z8/Z8681_Data_Sheet_Mar83.pdf', what: 'Zilog, March 1983 (UB 88xx = Z8 family), bitsavers.org' },
+  { title: 'Robotrontechnik forum thread', href: 'https://www.robotrontechnik.de/html/forum/thwb/showtopic.php?threadid=16374', what: 'Discussion about the JU+TE computer' },
+  { title: 'RetroShield', href: 'http://8bitforce.com/projects/retroshield/', what: 'Arduino Mega shields that run real retro CPUs' },
+  { title: 'A Z80 board with very few parts', href: 'https://hackaday.com/2020/07/17/a-z80-board-with-very-few-parts/', what: 'Hackaday: a real CPU driven by an Arduino' },
+  { title: 'Mega-Compjuter', href: 'https://github.com/mariosgit/Mega-Compjuter', what: 'This project: an Arduino Mega shield for the UB 8830/8833, and this emulator' },
+]
+
+function FurtherReading() {
+  return (
+    <nav className="reading" aria-labelledby="reading-h">
+      <h2 id="reading-h">Further reading</h2>
+      <ul>
+        {READING.map((r) => (
+          <li key={r.href}>
+            <a href={r.href} target="_blank" rel="noopener noreferrer">
+              {r.title}
+            </a>
+            <span>{r.what}</span>
+          </li>
+        ))}
+      </ul>
+    </nav>
   )
 }
 

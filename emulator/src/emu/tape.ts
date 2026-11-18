@@ -60,8 +60,14 @@ export class TapeDeck {
     machine.tapeSource = (cycle) => this.levelAt(cycle)
   }
 
+  /** True once a SAVE leader tone is being recorded (key clicks alone don't count). */
   get isRecording(): boolean {
-    return this.rec !== null
+    const r = this.rec
+    if (!r) return false
+    const leader = CPU_HZ / 2
+    if (r.lastEdge - r.burstStart > leader) return true
+    for (let i = 0; i < r.segments.length; i += 2) if (r.segments[i] > leader) return true
+    return false
   }
 
   get isPlaying(): boolean {
